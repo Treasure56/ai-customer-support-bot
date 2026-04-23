@@ -1,0 +1,201 @@
+{
+  "name": "Daily Summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cc7f7100-f2cd-4e8e-a0ea-42a47468576a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU",
+          "mode": "list",
+          "cachedResultName": " Mama's Kitchen Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "84295d4e-93a7-419f-bcae-ed3f0ac46907",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "yYWg81gOiMMksuLl",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = items.map(item => {\n  const row = item.json;\n  return `• ${row['Timestamp']} | ${row['Customer Name']} | ${row['Order']} | ${row['Phone Number']} | ${row['Total Amount']}`;\n});\n\nconst summary = rows.join('\\n');\n\nreturn [{\n  json: {\n    orderSummary: summary,\n    totalOrders: rows.length\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "9356ce77-15cb-406b-b27c-033dad22cbd1",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a business assistant for Mama's Kitchen.\n\nHere are today's orders:\n\n{{ $('Code in JavaScript').item.json.orderSummary }}\n\nTotal Orders: {{ $('Code in JavaScript').item.json.totalOrders }}\n\nWrite a short daily summary for the business owner.\n- Keep it under 10 lines\n- Use simple English\n- Use bullet points\n- Use emojis only where natural\n- Include total orders, total revenue and most popular dish\n- Flag anything that looks unusual",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        624,
+        0
+      ],
+      "id": "d7a8cbc8-3d49-455d-af48-dd7494ee2ff9",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        560,
+        208
+      ],
+      "id": "c4459746-51f0-4a5b-bba7-732da572c556",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "5QuPlFHNyLlfWNUz",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5134529741",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "55be8798-3659-445c-be86-7b7ce029a496",
+      "name": "Send a text message",
+      "webhookId": "1e60a02f-d03b-4fa6-b006-e09d99a6f983",
+      "credentials": {
+        "telegramApi": {
+          "id": "0foBKCeMyh9ZAhPI",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "74ed56f4-8882-4a7f-b022-651e6745cfac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2184a9761503ca5db7bf5020fbe517ed27ac032f139724d3a69ac85a873cc024"
+  },
+  "id": "PmEnok7j7y7aIUOb",
+  "tags": []
+}

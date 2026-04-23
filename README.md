@@ -1,54 +1,56 @@
 # 🍛 Amara: AI Support Bot for Mama's Kitchen
 
-An intelligent, fully automated customer support and food ordering Telegram bot built using **n8n**, **LangChain**, and **LLaMA 3.3** (via Groq). 
+Amara is an automated customer support and food ordering bot for Mama's Kitchen. It works on Telegram and uses AI to talk to customers, take their food orders, and save the order details without human help.
 
-This bot acts as a warm, friendly customer service agent named "Amara". It handles natural conversations, processes food orders based on a strict menu, calculates delivery fees, provides interactive payment options, and automatically logs leads and confirmed orders to Google Sheets.
+This project is built using **n8n** (an automation tool) and **LLaMA 3.3** (an AI model via Groq). It uses three main automated workflows to handle customer chats, follow up on missed orders, and update the business owner.
 
-## ✨ Features
+## What the Project Does
 
-- **Conversational AI**: Powered by LLaMA 3.3 70B (via Groq) for lightning-fast, human-like responses.
-- **Strict Business Logic**: The agent is bound by strict prompt engineering to adhere to specific menus, pricing, opening hours, and delivery constraints.
-- **Interactive UI Elements**: Seamlessly transitions from unstructured AI chat to structured Telegram inline keyboards for secure payment selection (Bank Transfer vs. Pay on Delivery).
-- **Automated CRM**: Automatically syncs with Google Sheets:
-  - **Leads Tracking**: Logs every new user interaction to track potential customers.
-  - **Order Management**: Extracts structured data (Name, Order, Phone, Total Amount) from natural language and logs confirmed orders instantly.
-- **Smart Logic Routing**: Uses invisible backend tags (`[SHOW_PAYMENT_OPTIONS]`, `[ORDER::...]`) to bridge the gap between unstructured LLM outputs and deterministic n8n logic.
+The system is split into three parts (workflows):
 
-## 🛠️ Architecture 
+### 1. The Main Chatbot (Business Support Bot)
+This is the friendly AI agent that talks to customers.
+- **Takes Orders:** It talks to customers on Telegram, shares the menu, and helps them place food orders.
+- **Calculates Costs:** It adds up the price of the food and includes the delivery fee.
+- **Takes Payments:** It gives customers buttons to choose how they want to pay (Bank Transfer or Pay on Delivery).
+- **Saves Data:** It automatically saves every new customer's chat as a "Lead" and every completed order into a Google Sheet.
 
-This project is a no-code/low-code workflow built in **n8n**. The core logic flows as follows:
+### 2. Auto Follow-up (Missed Sales Recovery)
+This part helps bring back customers who left without buying.
+- **Daily Check:** It checks the Google Sheet every day at 10:00 AM.
+- **Friendly Reminder:** If a customer started chatting but did not order, the bot sends them a friendly message on Telegram.
+- **Suggests Food:** It suggests popular dishes to encourage them to order.
 
-1. **Telegram Trigger**: Listens for incoming messages or callback queries (button clicks).
-2. **LangChain Agent**: Processes user input alongside a 50-message conversational memory buffer.
-3. **Regex Interceptors**: n8n monitors the LLM's output for specific hidden triggers:
-   - If the AI generates `[SHOW_PAYMENT_OPTIONS]`, n8n intercepts the message and presents Telegram Inline Buttons to the user.
-   - If the AI generates an `[ORDER::...]` string, n8n extracts the data using regex and appends it to the Google Sheets database.
-4. **Google Sheets Integration**: Handles database operations via Service Accounts.
+### 3. Daily Summary (Owner Report)
+This part keeps the business owner informed about how the business is doing.
+- **Morning Report:** It runs every day at 8:00 AM.
+- **Summarizes Data:** It reads all the completed orders from the Google Sheet.
+- **Sends to Owner:** The AI writes a short summary showing the total orders, total money made, and the most popular dish, then sends it directly to the business owner on Telegram.
 
-## 🚀 Getting Started
+## What You Need to Run This
 
-### Prerequisites
-To import and run this workflow, you will need:
-- An active [n8n](https://n8n.io/) instance (Cloud or Self-Hosted).
-- A **Telegram Bot Token** (via BotFather).
-- A **Groq API Key** (for the LangChain chat model).
-- A **Google Cloud Service Account** with access to the Google Sheets API.
-- A blank Google Sheet with two tabs: `Leads` and `Orders` (ensure column headers match the workflow mapping).
+To use this project, you need a few free accounts:
+- An **n8n** account (to run the automations).
+- A **Telegram Bot** (created using BotFather on Telegram).
+- A **Groq API Key** (to power the AI).
+- A **Google Cloud account** (to connect to Google Sheets).
+- A **Google Sheet** with two tabs named `Leads` and `Orders`.
 
-### Installation
-1. Download the `Business Support Bot.json` file.
+## How to Install
+
+1. Download the three JSON files in this project:
+   - `Business-Support-Bot.json`
+   - `Auto-Follow-up.json`
+   - `Daily-Summary.json`
 2. Open your n8n workspace and click **Add Workflow**.
-3. In the top right menu, select **Import from File** and select the downloaded JSON.
-4. Set up your credentials:
-   - Connect your Telegram Bot.
-   - Connect your Groq account.
-   - Connect your Google Sheets account.
-5. Update the Google Sheets node with your specific Document ID.
-6. Activate the workflow!
+3. Select **Import from File** and upload the JSON files one by one.
+4. Add your accounts (Telegram, Groq, and Google Sheets) to n8n to connect them.
+5. Update the Google Sheets nodes in the workflows with the link to your own Google Sheet.
+6. Turn on the workflows!
 
-## 📝 Customization
+## How to Change It for Your Business
 
-To adapt this bot for your own business:
-1. Open the **AI Agent** node.
-2. Modify the **System Message** to reflect your business name, persona, menu/services, and pricing.
-3. Ensure you maintain the exact formatting rules for the `[ORDER::]` and `[SHOW_PAYMENT_OPTIONS]` tags within your new prompt.
+You can easily change this bot to work for your own business instead of Mama's Kitchen:
+1. Open the **Business Support Bot** workflow and click on the **AI Agent** node.
+2. Change the text to match your own business name, menu, and prices.
+3. Keep the special tags exactly as they are (like `[ORDER::]` and `[SHOW_PAYMENT_OPTIONS]`) so the bot still knows when to save orders and show payment buttons.
