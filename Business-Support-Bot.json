@@ -476,7 +476,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.telegram.org/bot8723401119:AAF0Kko-P2o2MreZfWaek_HF6URtvKJZ7gE/answerCallbackQuery",
+        "url": "=https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/answerCallbackQuery",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"callback_query_id\": \"{{ $('Telegram Trigger').item.json.callback_query.id }}\",\n  \"text\": \"Got it!\"\n}",
@@ -494,7 +494,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.telegram.org/bot8723401119:AAF0Kko-P2o2MreZfWaek_HF6URtvKJZ7gE/editMessageReplyMarkup",
+        "url": "=https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/editMessageReplyMarkup",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"chat_id\": \"{{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}\",\n  \"message_id\": \"{{ $('Telegram Trigger').item.json.callback_query.message.message_id }}\",\n  \"reply_markup\": {\n    \"inline_keyboard\": []\n  }\n}",
