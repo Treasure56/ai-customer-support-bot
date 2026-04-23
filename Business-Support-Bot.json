@@ -1,0 +1,686 @@
+{
+  "name": "Business Support Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        0
+      ],
+      "id": "c7c8bff5-8a90-4c1b-8c5e-77874987f1f8",
+      "name": "Telegram Trigger",
+      "webhookId": "38da185e-3fbf-4eeb-b9b8-9ae7c9f2985f",
+      "credentials": {
+        "telegramApi": {
+          "id": "0foBKCeMyh9ZAhPI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        144
+      ],
+      "id": "cde99cba-cc69-40e7-ad06-9f7caf626bd5",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "5QuPlFHNyLlfWNUz",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "You are Amara, a warm and friendly customer support agent for Mama's Kitchen in Lagos.\n\nHow you sound:\n- Friendly and welcoming like a real person\n- Short replies — 3 to 5 lines max unless sharing the full menu\n- Simple everyday English\n- Use emojis only where they feel natural\n- Never ask two questions at once\n- Never talk too much — straight to the point\n\nWelcome message:\nAlways start with this exact message:\n\"Hi! Welcome to Mama's Kitchen 🍛 We serve fresh authentic Nigerian meals daily. We're open Monday to Saturday, 9am – 9pm. What can I get for you today?\"\n\nCustomer info rules:\n- Ask for the customer's name naturally during the conversation — not at the very beginning\n- Never mistake a food item or soup name for a customer's name\n- Always collect their phone number before confirming any order\n- Never confirm an order without both name and phone number\n\nAbout Mama's Kitchen:\n- Open Monday to Saturday, 9am to 9pm\n- Closed Sundays\n- Location: 12 Balogun Street, Lagos Island\n- Phone: 09039418922\n\nFull Menu — always show the complete list when asked, never cut it short:\n\nRice Dishes:\n- Jollof Rice + Chicken — N2,500\n- Jollof Rice + Fish — N2,800\n- Jollof Rice + Beef — N2,500\n- Fried Rice + Chicken — N2,500\n- Fried Rice + Fish — N2,800\n- White Rice + Stew + Chicken — N2,500\n- Coconut Rice + Chicken — N2,800\n\nSwallow & Soup:\n- Pounded Yam + Egusi Soup — N3,000\n- Pounded Yam + Ofe Onugbu (Bitter Leaf) — N3,000\n- Pounded Yam + Oha Soup — N3,200\n- Pounded Yam + Afang Soup — N3,200\n- Fufu + Egusi Soup — N2,800\n- Fufu + Ofe Onugbu — N2,800\n- Fufu + Oha Soup — N3,000\n- Eba + Egusi Soup — N2,500\n- Eba + Okra Soup — N2,500\n- Eba + Afang Soup — N3,000\n- Amala + Ewedu + Gbegiri — N2,200\n- Amala + Okra — N2,500\n- Semo + Egusi — N2,800\n- Wheat + Ofe Onugbu — N3,000\n\nSoups Only:\n- Egusi Soup — N1,500\n- Okra Soup — N1,500\n- Ofe Onugbu — N1,800\n- Afang Soup — N2,000\n- Oha Soup — N2,000\n\nProtein Add-on:\n- Extra Chicken — N500\n- Extra Fish — N500\n- Extra Beef — N400\n- Goat meat — N700\n\nSpecial:\n- Pepper Soup (Goat meat) — N3,500\n- Pepper Soup (Chicken) — N3,000\n- Banga Soup + Starch — N3,500\n- Small Chops (Party pack) — N5,000\n\nDrinks:\n- Chapman — N800\n- Zobo — N500\n- Water — N200\n- Malt — N400\n- Coke/Pepsi — N400\n\nDelivery rules:\n- Lagos Island and Victoria Island only\n- Delivery fee: N500 flat\n- Delivery time: 30 to 45 minutes\n- Minimum order: N2,500\n- Free pickup available at 12 Balogun Street, Lagos Island\n\nHow to take an order:\n1. Welcome the customer and ask what they want to order\n2. If they order soup without specifying swallow — ask which swallow they want (Pounded Yam, Fufu, Eba, Amala, Semo or Wheat) — NEVER assume\n3. Ask for their name naturally during the conversation\n4. Ask if they want delivery or pickup\n5. If delivery — add N500 fee and ALWAYS ask for delivery address before confirming\n6. If pickup — no delivery fee, no rider, they come to us\n7. Ask for phone number if not provided\n8. Never confirm order without name, phone number and delivery address (if delivery)\n9. Show payment options using [SHOW_PAYMENT_OPTIONS] tag\n\nPayment rules:\n- Add [SHOW_PAYMENT_OPTIONS] tag at the end of your reply when customer is ready to pay\n- Only add this tag ONCE — except if customer switches from pickup to delivery\n- For pickup — Pay on Delivery is NOT available — they must pay via Bank Transfer before coming\n- For delivery — both payment options are available\n- If bank transfer — give account details and ask for proof of payment\n- If Pay on Delivery — confirm address, tell them rider will collect cash on arrival — do NOT ask for proof of payment\n- Never assume payment method — always wait for customer's choice\n\nBank Transfer details:\n- Bank: Moniepoint\n- Account Name: Mama's Kitchen Ltd\n- Account Number: 9039418922\n\nHandling common situations:\n- Menu request — show full menu, never cut it short\n- Item not on menu — politely say it's not available and suggest the closest option\n- Hours question — tell them: open Monday to Saturday 9am to 9pm, closed Sundays\n- Customer seems unsure — suggest a popular dish\n- Customer paid via bank transfer — thank them and confirm order\n\nPayment logging rule:\nWhen a customer confirms payment, add this at the very end of your reply on a new line:\n[ORDER::ActualCustomerName::ActualOrderDetails::ActualPhoneNumber::ActualTotalAmount]\n\nExample:\n[ORDER::John::Jollof Rice + Chicken::08012345678::3000]\n\nRules:\n- Use real values from the conversation — never use placeholder words\n- Total must be a number only — no N symbol\n- Only add after payment confirmation\n- NEVER show [ORDER::] tag to the customer — it must be completely invisible"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "cf4fec93-0649-4fe1-922e-c7e2911aa233",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output.replace(/\\[ORDER::[^\\]]+\\]/g, '').trim() }}",
+        "replyMarkup": "inlineKeyboard",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2384,
+        144
+      ],
+      "id": "29badb0c-ec2b-4ca9-b688-6a0e3e4afada",
+      "name": "Send a text message",
+      "webhookId": "42569007-ecbc-4348-aaba-2ad7d21d4168",
+      "executeOnce": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "0foBKCeMyh9ZAhPI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        256
+      ],
+      "id": "1e5c24ca-1f46-4a87-b936-0e4fb4b8b097",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c47ba63c-c746-4f8f-be92-7ca954fa9b48",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message.text.toLowerCase() }}",
+              "rightValue": "paid",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "51e8d918-f0ca-47a8-9b0d-d4492b6f276e",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message.text.toLowerCase() }}",
+              "rightValue": "proof",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2640,
+        0
+      ],
+      "id": "ce7913e6-0da0-4e55-9c43-4ac7a2d2482f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU",
+          "mode": "list",
+          "cachedResultName": " Mama's Kitchen Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toLocaleString('en-NG', {timeZone: 'Africa/Lagos'}) }}",
+            "Customer Name": "={{ $('AI Agent').item.json.output.match(/\\[ORDER::([^:]+):/)?.[1] }}",
+            "Order": "={{ $('AI Agent').item.json.output.match(/\\[ORDER::[^:]+::([^:]+):/)?.[1] }}",
+            "Phone Number": "={{ $('AI Agent').item.json.output.match(/\\[ORDER::[^:]+::[^:]+::([^:]+):/)?.[1] }}",
+            "Total Amount": "={{ $('AI Agent').item.json.output.match(/\\[ORDER::[^:]+::[^:]+::[^:]+::([^\\]]+)\\]/)?.[1] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order",
+              "displayName": "Order",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2848,
+        -96
+      ],
+      "id": "3fbabf3a-64dc-4f32-824c-2201ddf75c47",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "SVheQXBl4ucU2v1B",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU",
+          "mode": "list",
+          "cachedResultName": " Mama's Kitchen Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 487311449,
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rjUfCsGILTIujE27Z8S12sHL6wu4jFrBrdVYCeGfrhU/edit#gid=487311449"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Chat ID": "={{ $json.message.chat.id }}",
+            "Name": "={{ $json.message.chat.first_name }}",
+            "Last Message": "={{ new Date().toLocaleString('en-NG', {timeZone: 'Africa/Lagos'}) }}",
+            "Status": "Pending"
+          },
+          "matchingColumns": [
+            "Chat ID"
+          ],
+          "schema": [
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Message",
+              "displayName": "Last Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "938f0aa4-8cca-4883-990d-35f61d723e47",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "MMoSltX489nKBLVd",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b4909b3c-af61-4229-abde-1f06925c67f7",
+              "leftValue": "={{ $('AI Agent').item.json.output }}",
+              "rightValue": "[SHOW_PAYMENT_OPTIONS]",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1760,
+        16
+      ],
+      "id": "8ed088b8-b786-4c1e-85cf-bca420389f3e",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output.replace('[SHOW_PAYMENT_OPTIONS]', '').trim() }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Bank Transfer",
+                    "additionalFields": {
+                      "callback_data": "payment_bank"
+                    }
+                  },
+                  {
+                    "text": "Pay on Delivery",
+                    "additionalFields": {
+                      "callback_data": "payment_delivery"
+                    }
+                  },
+                  {
+                    "text": "Paystack",
+                    "additionalFields": {
+                      "callback_data": "payment_paystack"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2384,
+        -48
+      ],
+      "id": "0332c9ee-8b52-4e47-a093-f0fac0c7220b",
+      "name": "Send a text message1",
+      "webhookId": "fb674fa4-6673-4053-99be-679e5b47a085",
+      "credentials": {
+        "telegramApi": {
+          "id": "0foBKCeMyh9ZAhPI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c318fa0b-3b43-4916-a5bb-1235dadf5d82",
+              "leftValue": "={{ $json.callback_query }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        0
+      ],
+      "id": "9c68ffb2-33c0-451b-bb16-a8de85829842",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.callback_query.message.chat.id }}",
+        "text": "={{ $json.callback_query.data === 'payment_bank' ? 'Great! Please transfer to:\\n\\nBank: Moniepoint\\nAccount Name: Mama\\'s Kitchen Ltd\\nAccount Number: 9039418922\\n\\nSend us proof of payment once done!' : $json.callback_query.data === 'payment_delivery' ? 'Perfect! Your order is confirmed! 🍛 Our rider will deliver to you in 30-45 minutes and collect payment on arrival!' : $json.callback_query.data === 'payment_paystack' ? 'Here is your Paystack payment link:\\n\\n[ADD YOUR PAYSTACK LINK HERE]\\n\\nComplete your payment and send us a screenshot!' : 'Thank you!' }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        -96
+      ],
+      "id": "5e65f9a5-91f2-4ee7-a836-243fceedefd3",
+      "name": "Send a text message2",
+      "webhookId": "f50b7f1b-643a-4eb7-be01-0ecd3a468008",
+      "credentials": {
+        "telegramApi": {
+          "id": "0foBKCeMyh9ZAhPI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8723401119:AAF0Kko-P2o2MreZfWaek_HF6URtvKJZ7gE/answerCallbackQuery",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"callback_query_id\": \"{{ $('Telegram Trigger').item.json.callback_query.id }}\",\n  \"text\": \"Got it!\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        928,
+        -256
+      ],
+      "id": "c1b12b67-e1e6-4f23-9ba4-250f72c77891",
+      "name": "Answer Callback Query"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8723401119:AAF0Kko-P2o2MreZfWaek_HF6URtvKJZ7gE/editMessageReplyMarkup",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"{{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}\",\n  \"message_id\": \"{{ $('Telegram Trigger').item.json.callback_query.message.message_id }}\",\n  \"reply_markup\": {\n    \"inline_keyboard\": []\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1184,
+        -256
+      ],
+      "id": "4011987d-9241-43cf-849e-b76a6ccacb78",
+      "name": "Edit Message"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback Query": {
+      "main": [
+        [
+          {
+            "node": "Edit Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Message": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d26177d1-9e9a-4e2d-89ea-32a8a4ea9527",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2184a9761503ca5db7bf5020fbe517ed27ac032f139724d3a69ac85a873cc024"
+  },
+  "id": "Uaz00BuM2Z15i8B9",
+  "tags": []
+}
